@@ -1,13 +1,29 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Route, NavLink } from 'react-router-dom';
-
-import Posts from './containers/Posts';
+import React, { Component, Suspense } from 'react';
+import { BrowserRouter, Route, NavLink} from 'react-router-dom';
 import User from './containers/User';
 import Welcome from './containers/Welcome';
 
+const Posts = React.lazy(() => import('./containers/Posts'));
+
 class App extends Component {
+  state = {
+    show: true
+  }
+  modeHandler = () => {
+    this.setState( prevState => {
+      return {show: !prevState.show};
+    });
+  }
   render() {
     return (
+      <React.Fragment>
+      <button onClick={this.modeHandler}> Toggle Mode </button>
+      {this.state.show ? (<Suspense fallback={<div> Loading...</div>}>
+      <Posts />
+    </Suspense>)
+    : <User />}
+    </React.Fragment>
+      /*
       <BrowserRouter>
         <React.Fragment>
           <nav>
@@ -16,9 +32,14 @@ class App extends Component {
           </nav>
           <Route path="/" component={Welcome} exact />
           <Route path="/user" component={User} />
-          <Route path="/posts" component={Posts} />
+          <Route path="/posts" render={() => (
+            <Suspense fallback={<div> Loading...</div>}>
+              <Posts />
+            </Suspense>
+          )} />
         </React.Fragment>
       </BrowserRouter>
+      */
     );
   }
 }
